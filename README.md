@@ -12,7 +12,67 @@
 
 ---
 
-## 🛠️ Tech Stack & Tools
+## 🏗️ System Architecture
+
+The following diagram illustrates how InsightX processes data from upload to actionable intelligence.
+
+```mermaid
+graph TD
+    subgraph Client ["🖥️ Frontend (Next.js 14)"]
+        UI[Dashboard UI]
+        Copilot[CopilotChat]
+        Charts[Recharts Viz]
+    end
+
+    subgraph Server ["⚙️ Backend (FastAPI)"]
+        API[API Gateway]
+        Manager[Connection Manager]
+        Preprocess[Data Preprocessor]
+    end
+
+    subgraph Intelligence ["🧠 Intelligence Layer"]
+        Agent[AI Agent (CopilotKit)]
+        MCP[MCP Server (Tools)]
+        Engine[Forecast Engine]
+        WarGames[War Games Sim]
+    end
+
+    subgraph Data ["💾 Data Infrastructure"]
+        Redis[(Redis Pub/Sub)]
+        DB[(PostgreSQL)]
+        S3[MinIO / Storage]
+    end
+
+    %% Data Flow
+    User((User)) -->|Uploads CSV| UI
+    UI -->|POST /upload| API
+    API -->|Store| S3
+    API -->|Parse| Preprocess
+    Preprocess -->|Save Metadata| DB
+
+    %% Agent Flow
+    User -->|Asks Question| Copilot
+    Copilot -->|Invokes| Agent
+    Agent -->|Tools| MCP
+    MCP -->|Query| API
+    
+    %% Forecast Flow
+    UI -->|Start Forecast| API
+    API -->|Queue Task| Redis
+    Redis -->|Trigger| Engine
+    Engine -->|Prophet + XGBoost| Engine
+    Engine -->|Stream Progress| Redis
+    Redis -->|Websocket| Manager
+    Manager -->|Live Update| UI
+
+    %% War Games
+    UI -->|Run Simulation| WarGames
+    WarGames -->|Fetch Baseline| DB
+    WarGames -->|Apply Stress| WarGames
+    WarGames -->|Return Scenarios| UI
+```
+
+---
 
 ### Backend (The Brain)
 *   **FastAPI & Python:** High-performance async API handling data processing and model inference.
