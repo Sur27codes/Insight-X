@@ -1,0 +1,161 @@
+services:
+  # ---------------------------------------------------------------------------
+  # FRONTEND (Next.js)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: insightx-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+      - NEXT_PUBLIC_COPILOT_API_KEY=${COPILOTKIT_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - insightx-net
+
+  # ---------------------------------------------------------------------------
+  # BACKEND (Python FastAPI)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: insightx-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/insightx
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - USER_PROMPT=${USER_PROMPT} # Seed prompt from start.sh
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - insightx-net
+
+  # ---------------------------------------------------------------------------
+  # MCP SERVER (Node.js)
+  # ---------------------------------------------------------------------------
+  mcp:
+    build:
+      context: ./mcp
+      dockerfile: Dockerfile
+    container_name: insightx-mcp
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      - BACKEND_URL=http://backend:8000
+    networks:
+      - insightx-net
+
+  # ---------------------------------------------------------------------------
+  # INFRASTRUCTURE SERVICES
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: insightx-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: insightx
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d insightx" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - insightx-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: insightx-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - insightx-net
+
+  minio:
+    image: minio/minio:latest
+    container_name: insightx-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - insightx-net
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: backend/mlflow/Dockerfile
+    container_name: insightx-mlflow
+    restart: always
+    ports:
+      - "5001:5000"
+    environment:
+      - BACKEND_STORE_URI=postgresql://user:password@postgres:5432/insightx
+      - ARTIFACT_ROOT=s3://mlflow/
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+    command: mlflow server --backend-store-uri postgresql://user:password@postgres:5432/insightx --default-artifact-root s3://mlflow/ --host 0.0.0.0
+    depends_on:
+      - postgres
+      - minio
+    networks:
+      - insightx-net
+
+volumes:
+  postgres_data:
+  minio_data:
+
+
+networks:
+  insightx-net:
+    driver: bridge
