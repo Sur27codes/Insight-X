@@ -64,7 +64,19 @@
 
 ## 📸 Screenshots
 
-*(Add screenshots here manually after upload)*
+| <img src="docs/images/dashboard_control.png" width="400" /> | <img src="docs/images/ai_assistant.png" width="400" /> |
+| :---: | :---: |
+| **Control Center** | **AI Analyst** |
+
+| <img src="docs/images/revenue_forecast.png" width="400" /> | <img src="docs/images/analytics_area.png" width="400" /> |
+| :---: | :---: |
+| **Ensemble Forecast** | **Dataset Analytics** |
+
+<p align="center">
+  <img src="docs/images/analytics_bar.png" width="600" />
+  <br>
+  <em>Deep Dive Analytics</em>
+</p>
 
 ## 📦 How to Run
 
