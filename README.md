@@ -73,10 +73,16 @@
 | **Ensemble Forecast** | **Dataset Analytics** |
 
 <p align="center">
-  <img src="docs/images/analytics_bar.png" width="600" />
+  <img src="docs/images/analytics_bar.png" width="800" />
   <br>
   <em>Deep Dive Analytics</em>
 </p>
+
+## 🤖 AI & Insights
+
+| <img src="docs/images/stock_assistant.png" width="400" /> | <img src="docs/images/deep_dive_analysis.png" width="400" /> |
+| :---: | :---: |
+| **Copilot Stock Analysis** | **Statistical Deep Dive** |
 
 ## 📦 How to Run
 
