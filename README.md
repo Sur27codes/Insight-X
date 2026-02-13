@@ -151,27 +151,22 @@ stateDiagram-v2
 
 ---
 
-## 📸 Screenshots
+## 📸 Interface & Insights
 
 | <img src="docs/images/dashboard_control.png" width="400" /> | <img src="docs/images/ai_assistant.png" width="400" /> |
 | :---: | :---: |
-| **Control Center** | **AI Analyst** |
-
+| **Control Center**<br>*(Command Hub)* | **AI Analyst**<br>*(Natural Language Queries)* |
 | <img src="docs/images/revenue_forecast.png" width="400" /> | <img src="docs/images/analytics_area.png" width="400" /> |
-| :---: | :---: |
-| **Ensemble Forecast** | **Dataset Analytics** |
+| **Ensemble Forecast**<br>*(Prophet + XGBoost)* | **Dataset Analytics**<br>*(Automatic EDA)* |
+| <img src="docs/images/stock_assistant.png" width="400" /> | <img src="docs/images/deep_dive_analysis.png" width="400" /> |
+| **Copilot Stock Analysis**<br>*(Real-time Data)* | **Statistical Deep Dive**<br>*(Volatility & Seasonality)* |
 
 <p align="center">
+  <br>
   <img src="docs/images/analytics_bar.png" width="800" />
   <br>
-  <em>Deep Dive Analytics</em>
+  <em>**Deep Dive Analytics** — Comprehensive Metric Breakdown</em>
 </p>
-
-## 🤖 AI & Insights
-
-| <img src="docs/images/stock_assistant.png" width="400" /> | <img src="docs/images/deep_dive_analysis.png" width="400" /> |
-| :---: | :---: |
-| **Copilot Stock Analysis** | **Statistical Deep Dive** |
 
 ## 📦 How to Run
 
