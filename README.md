@@ -19,28 +19,28 @@ The following diagram illustrates how InsightX processes data from upload to act
 ```mermaid
 graph TD
     subgraph Client ["🖥️ Frontend (Next.js 14)"]
-        UI[Dashboard UI]
-        Copilot[CopilotChat]
-        Charts[Recharts Viz]
+        UI["Dashboard UI"]
+        Copilot["CopilotChat"]
+        Charts["Recharts Viz"]
     end
 
     subgraph Server ["⚙️ Backend (FastAPI)"]
-        API[API Gateway]
-        Manager[Connection Manager]
-        Preprocess[Data Preprocessor]
+        API["API Gateway"]
+        Manager["Connection Manager"]
+        Preprocess["Data Preprocessor"]
     end
 
     subgraph Intelligence ["🧠 Intelligence Layer"]
-        Agent[AI Agent (CopilotKit)]
-        MCP[MCP Server (Tools)]
-        Engine[Forecast Engine]
-        WarGames[War Games Sim]
+        Agent["AI Agent (CopilotKit)"]
+        MCP["MCP Server (Tools)"]
+        Engine["Forecast Engine"]
+        WarGames["War Games Sim"]
     end
 
     subgraph Data ["💾 Data Infrastructure"]
-        Redis[(Redis Pub/Sub)]
-        DB[(PostgreSQL)]
-        S3[MinIO / Storage]
+        Redis[("Redis Pub/Sub")]
+        DB[("PostgreSQL")]
+        S3["MinIO / Storage"]
     end
 
     %% Data Flow
@@ -70,6 +70,35 @@ graph TD
     WarGames -->|Fetch Baseline| DB
     WarGames -->|Apply Stress| WarGames
     WarGames -->|Return Scenarios| UI
+```
+
+### 🔄 User Workflow
+
+The following state diagram portrays the typical user journey—from raw data to crisis simulation.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Upload: User uploads CSV
+    Upload --> Validation: System checks format
+    
+    state Validation {
+        [*] --> CheckDate: Fuzzy Match Dates
+        CheckDate --> CleanNumeric: Remove Symbols
+        CleanNumeric --> Impute: Fill Missing Values
+    }
+
+    Validation --> Dashboard: Success
+    Dashboard --> Analysis: AI Auto-Analysis
+    
+    state Dashboard {
+        [*] --> ViewCharts: Interactive Viz
+        ViewCharts --> AskCopilot: "Analyze this trend"
+        AskCopilot --> Insight: Generates Answer
+        
+        ViewCharts --> WarGames: Click "War Games"
+        WarGames --> Simulation: Select "Recession"
+        Simulation --> Comparison: View Impact
+    }
 ```
 
 ---
